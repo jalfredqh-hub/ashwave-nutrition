@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#15231d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ashwave Nutrition">
+<link rel="manifest" href="manifest.json">
+<title>Ashwave Nutrition</title>
+<style>
+:root{--bg:#f4f6f2;--card:#fff;--ink:#17221c;--muted:#69756d;--green:#276749;--pale:#e1efe5;--line:#e2e8e2;--orange:#b96b20}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:88px}
+header{background:#15231d;color:white;padding:calc(18px + env(safe-area-inset-top)) 18px 20px;border-radius:0 0 24px 24px}
+.brand{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}h1{font-size:27px;margin:7px 0 4px}header p{margin:0;color:#d1ddd4;font-size:14px}
+main{max-width:760px;margin:0 auto;padding:16px}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#fff;border-top:1px solid var(--line);padding:9px 5px calc(9px + env(safe-area-inset-bottom));z-index:3}
+nav button{border:0;background:none;color:var(--muted);font-size:12px;padding:5px;min-width:60px}nav button.active{color:var(--green);font-weight:700}nav span{display:block;font-size:21px;margin-bottom:3px}
+.page{display:none}.page.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #102b1608}
+.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.muted{color:var(--muted)}.small{font-size:12px}.big{font-size:30px;font-weight:750;letter-spacing:-.04em}.metric{font-size:21px;font-weight:700}.section-title{font-size:18px;margin:20px 2px 8px}
+.progress{height:8px;border-radius:10px;background:#e9eee9;overflow:hidden;margin:8px 0 5px}.progress i{display:block;height:100%;background:var(--green);border-radius:10px;width:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.macro{background:#f8faf7;border-radius:12px;padding:12px}.macro strong{display:block;font-size:19px}.macro .progress{height:6px}
+button,.btn{cursor:pointer;border:0;border-radius:12px;background:var(--green);color:white;padding:12px 15px;font-weight:650;font-size:14px}.btn-secondary{background:var(--pale);color:var(--green)}.btn-danger{background:#fbe9e6;color:#9a3527}.btn-small{padding:8px 10px;font-size:12px}
+label{display:block;font-size:13px;font-weight:650;margin:11px 0 5px}input,select{width:100%;padding:12px;border:1px solid #d5ded6;border-radius:11px;background:#fff;color:var(--ink);font:inherit}input[type=number]{appearance:textfield}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.formgrid .full{grid-column:1/-1}.food-item,.log-item{padding:11px 0;border-bottom:1px solid var(--line)}.food-item:last-child,.log-item:last-child{border-bottom:0}
+.notice{background:#fff6e7;border:1px solid #f0d8ad;color:#6e4a17;border-radius:12px;padding:12px;font-size:13px;line-height:1.4}
+.pill{display:inline-block;border-radius:99px;background:var(--pale);color:var(--green);font-size:11px;padding:4px 8px;font-weight:700}
+.empty{padding:18px 4px;color:var(--muted);font-size:14px;text-align:center}
+canvas{width:100%;height:180px;display:block}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+@media(min-width:620px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="brand">Tu nutrición, tus datos</div><h1>Ashwave Nutrition</h1><p>Una herramienta personal para comer, entrenar y progresar.</p></header>
+<main>
+<section id="today" class="page active">
+  <div class="row between" style="margin:8px 2px"><div><div class="muted small" id="todayDate"></div><h2 style="margin:3px 0">Resumen de hoy</h2></div><span class="pill">Versión 0.1</span></div>
+  <div class="card">
+    <div class="row between"><div><div class="muted small">Calorías consumidas</div><div class="big"><span id="calories">0</span><span style="font-size:15px;font-weight:500"> kcal</span></div></div><div style="text-align:right"><div class="muted small">Objetivo</div><div class="metric"><span id="targetCalories">2200</span></div></div></div>
+    <div class="progress"><i id="calProgress"></i></div><div class="row between small muted"><span id="remaining">2200 kcal restantes</span><span id="calPercent">0%</span></div>
+  </div>
+  <div class="grid">
+    <div class="macro"><div class="muted small">Proteína</div><strong><span id="protein">0</span> g</strong><div class="progress"><i id="proteinProgress"></i></div><div class="small muted">Meta <span id="targetProtein">150</span> g</div></div>
+    <div class="macro"><div class="muted small">Carbohidratos</div><strong><span id="carbs">0</span> g</strong><div class="progress"><i id="carbsProgress"></i></div><div class="small muted">Meta <span id="targetCarbs">220</span> g</div></div>
+    <div class="macro"><div class="muted small">Grasas</div><strong><span id="fat">0</span> g</strong><div class="progress"><i id="fatProgress"></i></div><div class="small muted">Meta <span id="targetFat">65</span> g</div></div>
+    <div class="macro"><div class="muted small">Comidas registradas</div><strong id="mealCount">0</strong><div class="small muted">entradas hoy</div></div>
+  </div>
+  <div class="row between section-title"><strong>Comidas de hoy</strong><button class="btn-small" onclick="showPage('food')">+ Añadir</button></div>
+  <div class="card" id="todayFoods"></div>
+  <div class="card"><strong>Consejo</strong><p class="muted" style="line-height:1.5;margin-bottom:0">Registra las cantidades de forma consistente. Los resultados son estimaciones y mejoran cuando pesas los alimentos y usas etiquetas nutricionales fiables.</p></div>
+</section>
+
+<section id="food" class="page">
+  <h2>Registrar alimentos</h2>
+  <p class="muted">Elige un alimento frecuente o introduce sus valores por porción. Puedes cambiar las cantidades.</p>
+  <div class="card">
+    <label>Alimento</label><select id="foodSelect" onchange="selectFood()"></select>
+    <div class="formgrid">
+      <div><label>Porciones</label><input id="servings" type="number" min="0.1" step="0.1" value="1"></div>
+      <div><label>Comida</label><select id="mealType"><option>Desayuno</option><option>Almuerzo</option><option>Cena</option><option>Snack</option></select></div>
+      <div class="full muted small" id="foodInfo">Valores aproximados por porción.</div>
+    </div>
+    <button style="width:100%;margin-top:14px" onclick="addFood()">Añadir a mi diario</button>
+    <hr><details><summary style="cursor:pointer;font-weight:650">Crear alimento personalizado</summary>
+      <div class="formgrid">
+        <div class="full"><label>Nombre del alimento</label><input id="customName" placeholder="Ej. mi batido de proteína"></div>
+        <div><label>Calorías</label><input id="customCal" type="number" min="0" placeholder="250"></div>
+        <div><label>Proteína (g)</label><input id="customProtein" type="number" min="0" placeholder="30"></div>
+        <div><label>Carbohidratos (g)</label><input id="customCarbs" type="number" min="0" placeholder="20"></div>
+        <div><label>Grasas (g)</label><input id="customFat" type="number" min="0" placeholder="5"></div>
+      </div><button class="btn-secondary" style="width:100%;margin-top:12px" onclick="saveCustomFood()">Guardar alimento</button>
+    </details>
+  </div>
+  <h3 class="section-title">Diario por fecha</h3>
+  <div class="card"><label>Ver día</label><input id="foodDate" type="date" onchange="renderFoodLog()"><div id="foodLog"></div></div>
+</section>
+
+<section id="progress" class="page">
+  <h2>Tu progreso</h2><p class="muted">Registra tu peso en condiciones similares, idealmente por la mañana. Observa tendencias, no fluctuaciones de un solo día.</p>
+  <div class="card">
+    <h3 style="margin-top:0">Registrar medidas</h3>
+    <div class="formgrid">
+      <div><label>Fecha</label><input id="measureDate" type="date"></div>
+      <div><label>Peso (lb)</label><input id="weightInput" type="number" min="1" step="0.1" placeholder="160"></div>
+      <div><label>Cintura (pulgadas)</label><input id="waistInput" type="number" min="1" step="0.1" placeholder="34"></div>
+      <div class="full"><button style="width:100%" onclick="addMeasurement()">Guardar medidas</button></div>
+    </div>
+  </div>
+  <div class="card"><div class="row between"><strong>Historial de peso</strong><span class="muted small">lb</span></div><canvas id="weightChart" width="600" height="220"></canvas><div id="weightSummary" class="muted small"></div><div id="measureLog"></div></div>
+</section>
+
+<section id="goals" class="page">
+  <h2>Objetivos y ajustes</h2>
+  <p class="muted">Las metas iniciales son provisionales. Configúralas según tu objetivo y revisa los ajustes con calma.</p>
+  <div class="card">
+    <h3 style="margin-top:0">Metas diarias</h3>
+    <div class="formgrid">
+      <div><label>Calorías (kcal)</label><input id="goalCal" type="number" min="800" max="6000"></div>
+      <div><label>Proteína (g)</label><input id="goalProtein" type="number" min="20" max="400"></div>
+      <div><label>Carbohidratos (g)</label><input id="goalCarbs" type="number" min="0" max="800"></div>
+      <div><label>Grasas (g)</label><input id="goalFat" type="number" min="0" max="300"></div>
+      <div><label>Objetivo de peso</label><select id="goalDirection"><option value="lose">Perder grasa</option><option value="maintain">Mantener peso</option><option value="gain">Ganar peso lentamente</option></select></div>
+      <div><label>Ritmo deseado (lb/semana)</label><select id="goalRate"><option value="0.25">0.25 — gradual</option><option value="0.5" selected>0.5 — moderado</option><option value="0.75">0.75</option><option value="1">1.0 — más agresivo</option></select></div>
+    </div>
+    <button style="width:100%;margin-top:14px" onclick="saveGoals()">Guardar objetivos</button>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Revisión semanal</h3>
+    <p class="muted" style="line-height:1.5">La app compara promedios de peso de semanas consecutivas y puede sugerir un pequeño ajuste. Para que sea útil, registra tu peso con frecuencia y anota la comida de forma honesta.</p>
+    <button class="btn-secondary" style="width:100%" onclick="weeklyReview()">Calcular sugerencia</button>
+    <div id="reviewResult" style="margin-top:12px"></div>
+  </div>
+  <div class="notice">La sugerencia es orientativa, no un diagnóstico ni una predicción exacta del metabolismo. No hagas cambios grandes por variaciones de pocos días. Si tienes una condición médica, consulta a un profesional antes de seguir una meta calórica.</div>
+  <div class="card">
+    <h3 style="margin-top:0">Tus datos</h3>
+    <p class="muted small">Se guardan en este navegador. Exporta una copia antes de borrar datos o cambiar de dispositivo.</p>
+    <div class="row"><button class="btn-secondary" onclick="exportData()">Exportar copia</button><label class="btn-secondary" style="margin:0;display:inline-block;cursor:pointer">Importar copia<input type="file" accept="application/json" style="display:none" onchange="importData(event)"></label></div>
+    <button class="btn-danger" style="margin-top:12px" onclick="clearAll()">Borrar todos los datos</button>
+  </div>
+</section>
+</main>
+<nav>
+<button class="active" data-page="today" onclick="showPage('today')"><span>◉</span>Hoy</button>
+<button data-page="food" onclick="showPage('food')"><span>＋</span>Comidas</button>
+<button data-page="progress" onclick="showPage('progress')"><span>↗</span>Progreso</button>
+<button data-page="goals" onclick="showPage('goals')"><span>⚙</span>Objetivos</button>
+</nav>
+<script>
+const KEY='ashwave-nutrition-v1';
+const baseFoods=[
+{id:'egg',name:'Huevo grande (1)',cal:72,p:6.3,c:0.4,f:4.8},
+{id:'toast',name:'Pan integral (1 rebanada)',cal:100,p:4,c:18,f:1.5},
+{id:'creamcheese',name:'Queso crema (1 cucharada)',cal:50,p:1,c:1,f:5},
+{id:'cottage',name:'Cottage cheese (1/2 taza)',cal:90,p:12,c:5,f:2.5},
+{id:'beef',name:'Carne molida 93/7 cocida (4 oz)',cal:170,p:24,c:0,f:8},
+{id:'beans',name:'Frijoles negros cocidos (1/2 taza)',cal:114,p:7.6,c:20,f:0.5},
+{id:'rice',name:'Arroz cocido (1/2 taza)',cal:103,p:2,c:22.5,f:0.2},
+{id:'tuna',name:'Atún en agua escurrido (1 lata aprox.)',cal:120,p:26,c:0,f:1},
+{id:'whey',name:'Proteína whey (1 scoop, aprox.)',cal:120,p:24,c:3,f:1.5},
+{id:'milk',name:'Leche Fairlife fat-free (1 taza)',cal:80,p:13,c:6,f:0},
+{id:'banana',name:'Banana mediana (1)',cal:105,p:1.3,c:27,f:0.4},
+{id:'greek',name:'Yogur griego natural sin grasa (170 g)',cal:100,p:17,c:6,f:0},
+{id:'spinach',name:'Espinaca (1 taza)',cal:7,p:0.9,c:1.1,f:0.1},
+{id:'apple',name:'Manzana mediana (1)',cal:95,p:0.5,c:25,f:0.3},
+{id:'oil',name:'Aceite de oliva (1 cucharadita)',cal:40,p:0,c:0,f:4.5}
+];
+function todayISO(){let d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function defaults(){return {goals:{cal:2200,protein:150,carbs:220,fat:65,direction:'lose',rate:0.5},entries:[],measurements:[],customFoods:[]}}
+let state=load();
+function load(){try{return {...defaults(),...JSON.parse(localStorage.getItem(KEY)||'{}')}}catch(e){return defaults()}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function num(id){return Math.max(0,Number(document.getElementById(id).value)||0)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function allFoods(){return [...baseFoods,...state.customFoods]}
+function init(){
+ document.getElementById('todayDate').textContent=new Date().toLocaleDateString('es-US',{weekday:'long',month:'long',day:'numeric'});
+ document.getElementById('foodDate').value=todayISO();document.getElementById('measureDate').value=todayISO();
+ document.getElementById('goalCal').value=state.goals.cal;document.getElementById('goalProtein').value=state.goals.protein;document.getElementById('goalCarbs').value=state.goals.carbs;document.getElementById('goalFat').value=state.goals.fat;
+ document.getElementById('goalDirection').value=state.goals.direction;document.getElementById('goalRate').value=String(state.goals.rate);
+ populateFoods();renderAll();
+}
+function populateFoods(){let sel=document.getElementById('foodSelect'),prev=sel.value;sel.innerHTML=allFoods().map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('');if(allFoods().some(f=>f.id===prev))sel.value=prev;selectFood()}
+function selectFood(){let f=allFoods().find(x=>x.id===document.getElementById('foodSelect').value);if(f)document.getElementById('foodInfo').textContent=`Por porción: ${f.cal} kcal · P ${f.p} g · C ${f.c} g · G ${f.f} g`}
+function addFood(){let f=allFoods().find(x=>x.id===document.getElementById('foodSelect').value),s=Number(document.getElementById('servings').value);if(!f||!s||s<=0){alert('Introduce una cantidad válida.');return}state.entries.push({id:Date.now(),date:todayISO(),foodId:f.id,name:f.name,servings:s,meal:document.getElementById('mealType').value,cal:f.cal*s,p:f.p*s,c:f.c*s,f:f.f*s});save();renderAll();document.getElementById('servings').value=1;showPage('today')}
+function saveCustomFood(){let name=document.getElementById('customName').value.trim();if(!name){alert('Escribe el nombre del alimento.');return}let f={id:'custom-'+Date.now(),name,cal:num('customCal'),p:num('customProtein'),c:num('customCarbs'),f:num('customFat')};state.customFoods.push(f);save();populateFoods();document.getElementById('foodSelect').value=f.id;selectFood();['customName','customCal','customProtein','customCarbs','customFat'].forEach(id=>document.getElementById(id).value='')}
+function totals(entries){return entries.reduce((a,e)=>({cal:a.cal+e.cal,p:a.p+e.p,c:a.c+e.c,f:a.f+e.f}),{cal:0,p:0,c:0,f:0})}
+function setBar(id,value,target){document.getElementById(id).style.width=Math.min(100,target>0?value/target*100:0)+'%'}
+function renderToday(){let entries=state.entries.filter(e=>e.date===todayISO()),t=totals(entries),g=state.goals;document.getElementById('calories').textContent=Math.round(t.cal);document.getElementById('targetCalories').textContent=g.cal;document.getElementById('remaining').textContent=`${Math.round(g.cal-t.cal)} kcal ${g.cal>=t.cal?'restantes':'por encima'}`;document.getElementById('calPercent').textContent=Math.round(t.cal/g.cal*100||0)+'%';setBar('calProgress',t.cal,g.cal);[['protein',t.p,g.protein],['carbs',t.c,g.carbs],['fat',t.f,g.fat]].forEach(([n,v,target])=>{document.getElementById(n).textContent=Math.round(v);document.getElementById('target'+n[0].toUpperCase()+n.slice(1)).textContent=target;setBar(n+'Progress',v,target)});document.getElementById('mealCount').textContent=entries.length;
+ let box=document.getElementById('todayFoods');box.innerHTML=entries.length?entries.slice().reverse().map(e=>`<div class="food-item row between"><div><strong>${esc(e.name)}</strong><div class="small muted">${esc(e.meal)} · ${e.servings} porción(es) · ${Math.round(e.p)} g proteína</div></div><div style="text-align:right;white-space:nowrap"><strong>${Math.round(e.cal)} kcal</strong><br><button class="btn-danger btn-small" onclick="deleteEntry(${e.id})">Quitar</button></div></div>`).join(''):'<div class="empty">Todavía no has registrado alimentos hoy.</div>'}
+function renderFoodLog(){let date=document.getElementById('foodDate').value||todayISO(),entries=state.entries.filter(e=>e.date===date),t=totals(entries);document.getElementById('foodLog').innerHTML=`<p class="muted small">${Math.round(t.cal)} kcal · P ${Math.round(t.p)} g · C ${Math.round(t.c)} g · G ${Math.round(t.f)} g</p>`+(entries.length?entries.map(e=>`<div class="log-item row between"><div><strong>${esc(e.name)}</strong><div class="small muted">${esc(e.meal)} · ${e.servings} porción(es)</div></div><div><strong>${Math.round(e.cal)} kcal</strong> <button class="btn-danger btn-small" onclick="deleteEntry(${e.id})">×</button></div></div>`).join(''):'<div class="empty">No hay comidas registradas en esta fecha.</div>')}
+function deleteEntry(id){state.entries=state.entries.filter(e=>e.id!==id);save();renderAll()}
+function addMeasurement(){let date=document.getElementById('measureDate').value||todayISO(),w=num('weightInput'),waist=num('waistInput');if(!w&&!waist){alert('Introduce el peso o la cintura.');return}let old=state.measurements.findIndex(m=>m.date===date);let item={date,weight:w||null,waist:waist||null};if(old>=0){let prev=state.measurements[old];if(!w)item.weight=prev.weight;if(!waist)item.waist=prev.waist;state.measurements[old]=item}else state.measurements.push(item);state.measurements.sort((a,b)=>a.date.localeCompare(b.date));save();renderProgress();document.getElementById('weightInput').value='';document.getElementById('waistInput').value=''}
+function renderProgress(){let ms=state.measurements;document.getElementById('measureLog').innerHTML=ms.length?ms.slice().reverse().map(m=>`<div class="log-item row between"><div><strong>${new Date(m.date+'T12:00:00').toLocaleDateString('es-US',{month:'short',day:'numeric',year:'numeric'})}</strong><div class="small muted">${m.waist?`Cintura ${m.waist}"`:''}</div></div><div>${m.weight?`<strong>${m.weight} lb</strong>`:'—'} <button class="btn-danger btn-small" onclick="deleteMeasurement('${m.date}')">×</button></div></div>`).join(''):'<div class="empty">Añade tu primera medición para ver el progreso.</div>';let valid=ms.filter(m=>m.weight);document.getElementById('weightSummary').textContent=valid.length?`Último peso: ${valid[valid.length-1].weight} lb · ${valid.length} medición(es) guardada(s).`:'Aún no hay pesos registrados.';drawChart(valid)}
+function deleteMeasurement(date){state.measurements=state.measurements.filter(m=>m.date!==date);save();renderProgress()}
+function drawChart(ms){let c=document.getElementById('weightChart'),ctx=c.getContext('2d'),w=c.width,h=c.height;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#e2e8e2';ctx.lineWidth=1;for(let i=1;i<=4;i++){let y=i*h/5;ctx.beginPath();ctx.moveTo(30,y);ctx.lineTo(w-15,y);ctx.stroke()}if(!ms.length){ctx.fillStyle='#69756d';ctx.font='16px sans-serif';ctx.fillText('Tus mediciones aparecerán aquí',30,105);return}let vals=ms.map(m=>m.weight),min=Math.min(...vals)-1,max=Math.max(...vals)+1;if(max===min)max=min+1;ctx.strokeStyle='#276749';ctx.lineWidth=4;ctx.beginPath();ms.forEach((m,i)=>{let x=35+(ms.length===1?0:i*(w-70)/(ms.length-1)),y=h-25-(m.weight-min)/(max-min)*(h-55);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ms.forEach((m,i)=>{let x=35+(ms.length===1?0:i*(w-70)/(ms.length-1)),y=h-25-(m.weight-min)/(max-min)*(h-55);ctx.fillStyle='#276749';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill()})}
+function saveGoals(){let g={cal:num('goalCal'),protein:num('goalProtein'),carbs:num('goalCarbs'),fat:num('goalFat'),direction:document.getElementById('goalDirection').value,rate:Number(document.getElementById('goalRate').value)};if(g.cal<800||g.protein<20){alert('Revisa las metas introducidas.');return}state.goals=g;save();renderAll();alert('Objetivos guardados.')}
+function weeklyReview(){let ms=state.measurements.filter(m=>m.weight).sort((a,b)=>a.date.localeCompare(b.date));let box=document.getElementById('reviewResult');if(ms.length<4){box.innerHTML='<div class="notice">Registra al menos 4 pesos, idealmente repartidos en dos semanas, antes de usar esta revisión. Para ajustar con más confianza, registra también tu ingesta diaria.</div>';return}let latest=ms[ms.length-1],cut=new Date(latest.date+'T12:00:00');let recent=ms.filter(m=>(cut-new Date(m.date+'T12:00:00'))/86400000<=7),prior=ms.filter(m=>{let d=(cut-new Date(m.date+'T12:00:00'))/86400000;return d>7&&d<=14});if(recent.length<2||prior.length<2){box.innerHTML='<div class="notice">Aún no hay suficientes mediciones en ambas semanas. Continúa registrando tu peso.</div>';return}let avg=a=>a.reduce((s,m)=>s+m.weight,0)/a.length,delta=avg(recent)-avg(prior),dir=state.goals.direction,rate=state.goals.rate;let desired=dir==='lose'?-rate:dir==='gain'?rate:0;let suggestion=state.goals.cal;if(dir==='lose'&&delta>-rate*0.35)suggestion-=100;else if(dir==='lose'&&delta<-rate*1.5)suggestion+=100;else if(dir==='gain'&&delta<rate*0.5)suggestion+=100;else if(dir==='gain'&&delta>rate*1.5)suggestion-=100;else if(dir==='maintain'&&Math.abs(delta)>0.5)suggestion+=delta>0?-100:100;suggestion=Math.max(1200,Math.min(4000,suggestion));let msg=suggestion===state.goals.cal?'Tu tendencia parece suficientemente cercana al objetivo. Mantén la meta actual y sigue registrando.':`Sugerencia orientativa: considera cambiar tu objetivo de ${state.goals.cal} a ${suggestion} kcal/día (ajuste de 100 kcal).`;box.innerHTML=`<div class="card" style="background:#f8faf7;margin:0"><div class="muted small">Cambio entre promedios semanales</div><div class="big" style="font-size:25px">${delta>0?'+':''}${delta.toFixed(2)} lb/semana</div><p>${msg}</p><div class="small muted">No se cambia tu objetivo automáticamente. Considera también hambre, energía, entrenamiento y precisión del registro.</div>${suggestion!==state.goals.cal?`<button style="margin-top:12px" onclick="applySuggestion(${suggestion})">Aplicar sugerencia</button>`:''}</div>`}
+function applySuggestion(n){document.getElementById('goalCal').value=n;saveGoals();document.getElementById('reviewResult').innerHTML='<p class="muted">Meta actualizada. Reevalúa después de reunir más datos.</p>'}
+function renderAll(){renderToday();renderFoodLog();renderProgress();document.getElementById('targetCalories').textContent=state.goals.cal}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===id));document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='progress')renderProgress();if(id==='food')renderFoodLog();window.scrollTo(0,0)}
+function exportData(){let blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ashwave-nutrition-backup-'+todayISO()+'.json';a.click();URL.revokeObjectURL(url)}
+function importData(event){let file=event.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!d.goals||!Array.isArray(d.entries)||!Array.isArray(d.measurements))throw Error();state={...defaults(),...d};save();init();alert('Copia importada.')}catch(e){alert('No se pudo importar. Selecciona una copia válida de Ashwave Nutrition.')}};r.readAsText(file)}
+function clearAll(){if(confirm('¿Seguro que quieres borrar todos los alimentos, medidas y objetivos guardados? Exporta una copia antes si quieres conservarlos.')){state=defaults();save();init()}}
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
+init();
+</script>
+</body></html>
